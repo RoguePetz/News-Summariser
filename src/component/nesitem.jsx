@@ -4,9 +4,9 @@ import gotolink from '../assets/images/share.png'
 import aichat from '../assets/images/newspaper (1).png'
 import save from '../assets/images/save-instagram.png'
 const NewsItem = ({ source,source_icon, title, description, urlToImage, url, publishedAt, summary }) => {
-  if (!urlToImage) {
-    return <SkeletonLoader />; // Render skeleton if no image is available
-  }
+  // if (!urlToImage) {
+  //   return <SkeletonLoader />; // Render skeleton if no image is available
+  // }
   return (
     <div>
       
@@ -23,14 +23,14 @@ const NewsItem = ({ source,source_icon, title, description, urlToImage, url, pub
             <strong>{source}</strong> · {new Date(publishedAt).toLocaleDateString()}
         </div>
         <div className="tweet-title">{title}</div>
-        <div className="tweet-description">{summary}</div>
+        <div className="tweet-description">{summary||description}</div>
         <div style={{display:'flex',justifyContent:'center'}}>
          {urlToImage && <img src={urlToImage} alt={title} className="tweet-image" />}
         </div>
-        <div style={{display:'flex', alignItems:'center'}}>
-          <div>
-            <a href={url} target="_blank" rel="noopener noreferrer" className="tweet-link">
-            <img src={gotolink} width={35}/>
+        <div style={{display:'flex', alignItems:'center',gap:'30px'}}>
+          <div className="">
+            <a href={url} target="_blank" rel="noopener noreferrer" >
+              <img src={gotolink} width={35} className=""/>
             </a>
           </div>
           <div>
