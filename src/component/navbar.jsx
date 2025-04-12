@@ -2,45 +2,77 @@ import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
+import Select from 'react-select';
 import logo from '../assets/images/newspaper.png';
 import filter from '../assets/images/setting.png';
 
 function Navbar({ setActiveFilters }) {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filters, setFilters] = useState({
-    category: '',
-    language: 'en',
-    country: '',
+    category: '',       // Comma-separated categories
+    language: 'en',     // Comma-separated languages
+    country: '',        // Comma-separated countries
     query: ''
   });
 
-  const categories = [
-    '', 'business', 'entertainment', 'environment', 'food', 
-    'health', 'politics', 'science', 'sports', 'technology', 
-    'top', 'world'
+  const categoryOptions = [
+    { value: 'business', label: 'Business' },
+    { value: 'entertainment', label: 'Entertainment' },
+    { value: 'environment', label: 'Environment' },
+    { value: 'food', label: 'Food' },
+    { value: 'health', label: 'Health' },
+    { value: 'politics', label: 'Politics' },
+    { value: 'science', label: 'Science' },
+    { value: 'sports', label: 'Sports' },
+    { value: 'technology', label: 'Technology' },
+    { value: 'top', label: 'Top Stories' },
+    { value: 'world', label: 'World' }
   ];
   
-  const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'es', name: 'Spanish' },
-    { code: 'fr', name: 'French' },
-    { code: 'de', name: 'German' },
-    { code: 'it', name: 'Italian' }
+  const languageOptions = [
+    { value: 'en', label: 'English' },
+    { value: 'es', label: 'Spanish' },
+    { value: 'fr', label: 'French' },
+    { value: 'de', label: 'German' },
+    { value: 'it', label: 'Italian' }
   ];
   
-  const countries = [
-    { code: 'us', name: 'United States' },
-    { code: 'gb', name: 'United Kingdom' },
-    { code: 'ca', name: 'Canada' },
-    { code: 'au', name: 'Australia' },
-    { code: 'in', name: 'India' }
+  const countryOptions = [
+    { value: 'us', label: 'United States' },
+    { value: 'gb', label: 'United Kingdom' },
+    { value: 'ca', label: 'Canada' },
+    { value: 'au', label: 'Australia' },
+    { value: 'in', label: 'India' }
   ];
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
+  const handleSelectChange = (selectedOptions, field) => {
+    const value = selectedOptions ? selectedOptions.map(opt => opt.value).join(',') : '';
     setFilters(prev => ({
       ...prev,
-      [name]: value
+      [field]: value
+    }));
+  };
+
+  const getCurrentValues = (field) => {
+    if (!filters[field]) return [];
+    return filters[field].split(',')
+      .filter(Boolean)
+      .map(value => {
+        // Find the matching option from the appropriate options array
+        const options = 
+          field === 'category' ? categoryOptions :
+          field === 'language' ? languageOptions :
+          countryOptions;
+        
+        return options.find(opt => opt.value === value);
+      })
+      .filter(Boolean); // Remove any undefined values
+  };
+
+  const handleQueryChange = (e) => {
+    setFilters(prev => ({
+      ...prev,
+      query: e.target.value
     }));
   };
 
@@ -90,49 +122,42 @@ function Navbar({ setActiveFilters }) {
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Category</Form.Label>
-              <Form.Select 
-                name="category" 
-                value={filters.category} 
-                onChange={handleFilterChange}
-              >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>
-                    {cat || 'All Categories'}
-                  </option>
-                ))}
-              </Form.Select>
+              <Form.Label>Categories</Form.Label>
+              <Select
+                isMulti
+                options={categoryOptions}
+                value={getCurrentValues('category')}
+                onChange={(selected) => handleSelectChange(selected, 'category')}
+                className="basic-multi-select"
+                classNamePrefix="select"
+                placeholder="Select categories..."
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Language</Form.Label>
-              <Form.Select 
-                name="language" 
-                value={filters.language} 
-                onChange={handleFilterChange}
-              >
-                {languages.map(lang => (
-                  <option key={lang.code} value={lang.code}>
-                    {lang.name}
-                  </option>
-                ))}
-              </Form.Select>
+              <Form.Label>Languages</Form.Label>
+              <Select
+                isMulti
+                options={languageOptions}
+                value={getCurrentValues('language')}
+                onChange={(selected) => handleSelectChange(selected, 'language')}
+                className="basic-multi-select"
+                classNamePrefix="select"
+                placeholder="Select languages..."
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Country</Form.Label>
-              <Form.Select 
-                name="country" 
-                value={filters.country} 
-                onChange={handleFilterChange}
-              >
-                <option value="">All Countries</option>
-                {countries.map(country => (
-                  <option key={country.code} value={country.code}>
-                    {country.name}
-                  </option>
-                ))}
-              </Form.Select>
+              <Form.Label>Countries</Form.Label>
+              <Select
+                isMulti
+                options={countryOptions}
+                value={getCurrentValues('country')}
+                onChange={(selected) => handleSelectChange(selected, 'country')}
+                className="basic-multi-select"
+                classNamePrefix="select"
+                placeholder="Select countries..."
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">
@@ -141,7 +166,7 @@ function Navbar({ setActiveFilters }) {
                 type="text" 
                 name="query" 
                 value={filters.query} 
-                onChange={handleFilterChange}
+                onChange={handleQueryChange}
                 placeholder="Enter keywords..."
               />
             </Form.Group>

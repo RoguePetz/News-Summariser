@@ -21,7 +21,23 @@ function Main() {
   });
   const [expandedText, setExpandedText] = useState('');
 
+  // Infinite scroll implementation
+  const handleScroll = useCallback(() => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop !== 
+      document.documentElement.offsetHeight || 
+      loading || 
+      !nextPage
+    ) {
+      return;
+    }
+    fetchEveryNews(nextPage);
+  }, [loading, nextPage]);
 
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   const extractText = async () => {
     const input = document.createElement('input');
@@ -40,21 +56,6 @@ function Main() {
     };
     input.click();
   };
-
-  // useEffect(() => {
-  //   const processImageText = async () => {
-  //     if (imageText) {
-  //       try {
-  //         const summary = await summarizeArticle(imageText);
-  //         console.log('Summary:', summary);
-  //       } catch (error) {
-  //         console.error('Error summarizing extracted text:', error);
-  //       }
-  //     }
-  //   };
-  //   processImageText();
-  // }, [imageText]);
-
 
   const expandText = async (text) => {
     try {
@@ -86,7 +87,6 @@ function Main() {
         page: page,
       };
 
-      // Only add filters if they have values
       if (activeFilters.category) params.category = activeFilters.category;
       if (activeFilters.country) params.country = activeFilters.country;
       if (activeFilters.query) params.q = activeFilters.query;
@@ -144,12 +144,6 @@ function Main() {
     }
   };
 
-  // const loadMoreArticles = () => {
-  //   if (nextPage) {
-  //     fetchEveryNews(nextPage);
-  //   }
-  // };
-
   // Fetch news whenever filters change
   useEffect(() => {
     fetchEveryNews(null, true);
@@ -176,7 +170,7 @@ function Main() {
         <div className="feed">
           {articles.map((item, index) => (
             <NewsItem
-              key={index}
+              key={`${item.link}-${index}`} // Better key using unique identifier
               source={item.source_name}
               source_icon={item.source_icon}
               title={item.title}
@@ -185,18 +179,18 @@ function Main() {
               url={item.link}
               publishedAt={item.pubDate}
               summary={item.summary}
+              category={item.category}
             />
           ))}
         </div>
       )}
 
-      {/* {nextPage && !loading && (
-        <div style={{ textAlign: 'center', margin: '20px 0' }}>
-          <Button variant="primary" onClick={loadMoreArticles}>
-            Load More
-          </Button>
+      {loading && articles.length > 0 && (
+        <div className="feed">
+          <SkeletonLoader />
+          <SkeletonLoader />
         </div>
-      )} */}
+      )}
     </div>
   );
 }

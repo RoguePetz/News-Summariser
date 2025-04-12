@@ -4,7 +4,7 @@ const SkeletonLoader = () => {
   return (
     <div>
 
-      <div className="tweet-card skeleton">
+      <div className="tweet-card">
         {/* Profile Picture Skeleton */}
         <div className="tweet-profile-pic skeleton-pic"></div>
 
