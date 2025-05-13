@@ -28,7 +28,7 @@ function Navbar({ setActiveFilters }) {
     { value: 'top', label: 'Top Stories' },
     { value: 'world', label: 'World' }
   ];
-  
+
   const languageOptions = [
     { value: 'en', label: 'English' },
     { value: 'es', label: 'Spanish' },
@@ -36,7 +36,7 @@ function Navbar({ setActiveFilters }) {
     { value: 'de', label: 'German' },
     { value: 'it', label: 'Italian' }
   ];
-  
+
   const countryOptions = [
     { value: 'us', label: 'United States' },
     { value: 'gb', label: 'United Kingdom' },
@@ -59,11 +59,11 @@ function Navbar({ setActiveFilters }) {
       .filter(Boolean)
       .map(value => {
         // Find the matching option from the appropriate options array
-        const options = 
+        const options =
           field === 'category' ? categoryOptions :
-          field === 'language' ? languageOptions :
-          countryOptions;
-        
+            field === 'language' ? languageOptions :
+              countryOptions;
+
         return options.find(opt => opt.value === value);
       })
       .filter(Boolean); // Remove any undefined values
@@ -107,7 +107,7 @@ function Navbar({ setActiveFilters }) {
       alignItems: 'center'
     }}>
       <div><img src={logo} width={40} alt="News logo" /></div>
-      
+
       <div
         onClick={() => setShowFilterModal(true)}
         style={{ marginRight: '10px', cursor: 'pointer' }}
@@ -162,10 +162,10 @@ function Navbar({ setActiveFilters }) {
 
             <Form.Group className="mb-3">
               <Form.Label>Keyword Search</Form.Label>
-              <Form.Control 
-                type="text" 
-                name="query" 
-                value={filters.query} 
+              <Form.Control
+                type="text"
+                name="query"
+                value={filters.query}
                 onChange={handleQueryChange}
                 placeholder="Enter keywords..."
               />

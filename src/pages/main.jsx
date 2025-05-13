@@ -1,12 +1,13 @@
 import axios from 'axios';
 import { useState, useEffect, useCallback } from 'react';
 import Navbar from '../component/navbar';
-import Button from 'react-bootstrap/Button';
+// import Button from 'react-bootstrap/Button';
 import NewsItem from '../component/nesitem';
 import SkeletonLoader from '../component/SkeletonLoader';
-import { createWorker } from 'tesseract.js';
+import ImportedArticle from '../component/ImportedArticle';
 
 function Main() {
+  const [showModal, setShowModal] = useState(false);
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [nextPage, setNextPage] = useState(null);
@@ -24,9 +25,9 @@ function Main() {
   // Infinite scroll implementation
   const handleScroll = useCallback(() => {
     if (
-      window.innerHeight + document.documentElement.scrollTop !== 
-      document.documentElement.offsetHeight || 
-      loading || 
+      window.innerHeight + document.documentElement.scrollTop !==
+      document.documentElement.offsetHeight ||
+      loading ||
       !nextPage
     ) {
       return;
@@ -38,24 +39,6 @@ function Main() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
-
-  const extractText = async () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    
-    input.onchange = async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      
-      const worker = await createWorker();
-      const { data: { text } } = await worker.recognize(file);
-      setImageText(text);
-      await worker.terminate();
-      await expandText(text);
-    };
-    input.click();
-  };
 
   const expandText = async (text) => {
     try {
@@ -103,18 +86,20 @@ function Main() {
       const newArticles = response.data.results;
       const nextPage = response.data.nextPage;
 
-      const articlesWithSummaries = await Promise.all(
-        newArticles.map(async (article) => {
-          const summary = await summarizeArticle(article.description || article.content);
-          return { ...article, summary };
-        })
-      );
+      // const articlesWithSummaries = await Promise.all(
+      //   newArticles.map(async (article) => {
+      //     const summary = await summarizeArticle(article.description || article.content);
+      //     return { ...article, summary };
+      //   })
+      // );
 
-      if (reset) {
-        setArticles(articlesWithSummaries);
-      } else {
-        setArticles((prevArticles) => [...prevArticles, ...articlesWithSummaries]);
-      }
+      // if (reset) {
+      //   setArticles(articlesWithSummaries);
+      // } else {
+      //   setArticles((prevArticles) => [...prevArticles, ...articlesWithSummaries]);
+      // }
+      setArticles(newArticles);
+
 
       setNextPage(nextPage);
       setPage((prevPage) => prevPage + 1);
@@ -148,50 +133,58 @@ function Main() {
   useEffect(() => {
     fetchEveryNews(null, true);
   }, [activeFilters]);
-
   return (
-    <div className="light-main-bg">
-      <Navbar setActiveFilters={setActiveFilters} />
-      
-      <div className="add-button" onClick={extractText}>
-        +
+    <>
+      <div className="light-main-bg">
+        <Navbar setActiveFilters={setActiveFilters} />
+
+        <div className="add-button"
+          onClick={() => setShowModal(true)}
+        >
+          +
+        </div>
+
+        {loading && (
+          <div className="feed">
+            <SkeletonLoader />
+            <SkeletonLoader />
+            <SkeletonLoader />
+            <SkeletonLoader />
+          </div>
+        )}
+
+        {!loading && (
+          <div className="feed">
+
+            {articles.map((item, index) => (
+              <NewsItem
+                key={`${item.link}-${index}`} // Better key using unique identifier
+                source={item.source_name}
+                source_icon={item.source_icon}
+                title={item.title}
+                description={item.description}
+                urlToImage={item.image_url}
+                url={item.link}
+                publishedAt={item.pubDate}
+                summary={item.summary}
+                category={item.category}
+              />
+            ))}
+          </div>
+        )}
+
+        {loading && articles.length > 0 && (
+          <div className="feed">
+            <SkeletonLoader />
+            <SkeletonLoader />
+          </div>
+        )}
       </div>
-
-      {loading && (
-        <div className="feed">
-          <SkeletonLoader />
-          <SkeletonLoader />
-          <SkeletonLoader />
-          <SkeletonLoader />
-        </div>
-      )}
-
-      {!loading && (
-        <div className="feed">
-          {articles.map((item, index) => (
-            <NewsItem
-              key={`${item.link}-${index}`} // Better key using unique identifier
-              source={item.source_name}
-              source_icon={item.source_icon}
-              title={item.title}
-              description={item.description}
-              urlToImage={item.image_url}
-              url={item.link}
-              publishedAt={item.pubDate}
-              summary={item.summary}
-              category={item.category}
-            />
-          ))}
-        </div>
-      )}
-
-      {loading && articles.length > 0 && (
-        <div className="feed">
-          <SkeletonLoader />
-          <SkeletonLoader />
-        </div>
-      )}
-    </div>
+      <ImportedArticle
+        showModal={showModal}
+        setShowModal={setShowModal}
+        imageText={imageText} />
+    </>
   );
 }
 

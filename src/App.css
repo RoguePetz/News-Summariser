@@ -1,8 +1,8 @@
-.light-main-bg{
+.light-main-bg {
   background-color: rgb(242, 242, 242);
 }
 
-.light-bg{
+.light-bg {
   background-color: rgb(255, 255, 255);
 }
 
@@ -11,9 +11,12 @@
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 1000; /* Ensure the navbar is above other content */
-  background-color: #fff; /* Add a background color if needed */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better visibility */
+  z-index: 1000;
+  /* Ensure the navbar is above other content */
+  background-color: #fff;
+  /* Add a background color if needed */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Optional: Add a shadow for better visibility */
 }
 
 .add-button {
@@ -31,21 +34,23 @@
   justify-content: center;
   cursor: pointer;
   border: none;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   z-index: 10000;
-  }
-  
-.add-button:hover {
-  background: linear-gradient(135deg,#a29bfe, #6c5ce7);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
 }
-.page-options{
+
+.add-button:hover {
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.page-options {
   /* background-color: black; */
   text-align: center;
   padding: 5px;
 }
-.page-options-selected{
+
+.page-options-selected {
   /* background-color: black; */
   background-color: black;
   padding: 5px;
@@ -74,6 +79,7 @@ h1 {
   border-radius: 50%;
   object-fit: cover;
 }
+
 .category-tags {
   display: flex;
   gap: 8px;
@@ -89,6 +95,7 @@ h1 {
   font-size: 12px;
   font-weight: 500;
 }
+
 /* Feed Layout */
 .feed {
   margin-top: 20px;
@@ -108,9 +115,12 @@ h1 {
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 15px;
   transition: 0.3s ease-in-out;
-  width: 100%; /* This will make all cards take full width of their container */
-  max-width: 700px; /* This sets a maximum width while allowing smaller on mobile */
-  min-width: 700px; /* This sets a maximum width while allowing smaller on mobile */
+  width: 100%;
+  /* This will make all cards take full width of their container */
+  max-width: 700px;
+  /* This sets a maximum width while allowing smaller on mobile */
+  min-width: 700px;
+  /* This sets a maximum width while allowing smaller on mobile */
 }
 
 .tweet-card:hover {
@@ -169,6 +179,7 @@ h1 {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -223,19 +234,22 @@ h1 {
 }
 
 @media (max-width: 878px) {
-  .tweet-card{
+  .tweet-card {
     width: 500px;
-    max-width: auto; /* This sets a maximum width while allowing smaller on mobile */
-    min-width: auto; 
+    max-width: auto;
+    /* This sets a maximum width while allowing smaller on mobile */
+    min-width: auto;
   }
 }
+
 @media (max-width: 600px) {
-  .tweet-card{
+  .tweet-card {
     width: 100%;
   }
 }
+
 @media (max-width: 450px) {
-  .tweet-card{
+  .tweet-card {
     width: 100%;
   }
 }
