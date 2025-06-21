@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import Navbar from '../component/Navbar';
+import Navbars from '../component/Navbar';
 import NewsItem from '../component/nesitem';
 import SkeletonLoader from '../component/SkeletonLoader';
 import ImportedArticle from '../component/ImportedArticle';
@@ -114,7 +114,7 @@ function Main() {
       paddingBottom: '40px',
       position: 'relative'
     }}>
-      <Navbar setActiveFilters={setActiveFilters} />
+      <Navbars setActiveFilters={setActiveFilters} />
 
       <button
         onClick={() => setShowModal(true)}
