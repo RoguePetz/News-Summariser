@@ -6,7 +6,7 @@ import Select from 'react-select';
 import logo from '../assets/images/newspaper.png';
 import filter from '../assets/images/setting.png';
 
-function Navbar({ setActiveFilters }) {
+const Navbar = ({ setActiveFilters }) => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filters, setFilters] = useState({
     category: '',       // Comma-separated categories
