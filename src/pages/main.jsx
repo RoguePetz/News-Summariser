@@ -4,14 +4,17 @@ import Navbar from '../component/navbar.jsx';
 import NewsItem from '../component/nesitem';
 import SkeletonLoader from '../component/SkeletonLoader';
 import ImportedArticle from '../component/ImportedArticle';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Chat from '../component/chat';
+import { ChevronLeft, ChevronRight, TrendingUp, Clock, Eye } from "lucide-react"
+import TrendingCard from "../component/trending-card"
 
 function Main() {
   const [showModal, setShowModal] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [selectedNews, setSelectedNews] = useState(false);
   const [articles, setArticles] = useState([]);
+  const [trendingNews, setTrendingNews] = useState([])
+  const [trendingLoading, setTrendingLoading] = useState(false)
   const [loading, setLoading] = useState(false);
   const [nextPage, setNextPage] = useState(null);
   const [prevPages, setPrevPages] = useState([]); // Stack to track previous pages
@@ -21,7 +24,7 @@ function Main() {
     category: '',
     language: 'en',
     country: '',
-    query: ''
+    query: '',
   });
 
   const fetchEveryNews = async (pageToken = null, isNewSearch = false) => {
@@ -29,6 +32,7 @@ function Main() {
     try {
       const params = {
         language: activeFilters.language,
+        domain: activeFilters?.country ? null : 'bbc,cnn,aljazeera,reuters'
       };
 
       if (pageToken) params.page = pageToken;
@@ -62,7 +66,28 @@ function Main() {
     }
     setLoading(false);
   };
+  const fetchTrendingNews = async () => {
+    setTrendingLoading(true);
+    try {
+      const response = await axios.get('https://newsdata.io/api/1/latest', {
+        headers: {
+          'X-ACCESS-KEY': ApiKey,
+        },
+        params: {
+          language: 'en',
+          category: 'top', // or 'technology', 'business' etc.
+          domain: activeFilters?.country ? null : 'nytimes',
+        },
+      });
 
+      if (response.data && response.data.results) {
+        setTrendingNews(response.data.results.slice(0, 5)); // Take top 5
+      }
+    } catch (error) {
+      console.error("Failed to fetch trending news:", error);
+    }
+    setTrendingLoading(false);
+  };
   const handleNextPage = () => {
     if (nextPage) {
       fetchEveryNews(nextPage);
@@ -106,145 +131,119 @@ function Main() {
   useEffect(() => {
     fetchEveryNews(null, true); // Initial load with new search
   }, [activeFilters]);
+  useEffect(() => {
+    // if (!articles) {
+    fetchTrendingNews(); // Trending section
+    // }
+  }, [activeFilters, articles]);
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#f5f7fa',
-      paddingBottom: '40px',
-      position: 'relative'
-    }}>
+    <div className="main-container">
       <Navbar setActiveFilters={setActiveFilters} />
 
-      <button
-        onClick={() => setShowModal(true)}
-        style={{
-          position: 'fixed',
-          bottom: '30px',
-          right: '30px',
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          background: '#3a7bd5',
-          color: 'white',
-          border: 'none',
-          fontSize: '30px',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          zIndex: 100,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
+      {/* Add Article Button */}
+      <button onClick={() => setShowModal(true)} className="add-button">
         +
       </button>
 
-      <div style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-        padding: '20px',
-        position: 'relative'
-      }}>
-        {loading ? (
-          <div style={{
-            // display: 'grid',
-            // gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-            gap: '20px',
-            marginTop: '20px'
-          }}>
-            <SkeletonLoader />
-            <SkeletonLoader />
-            <SkeletonLoader />
-            <SkeletonLoader />
+      {/* Main Content */}
+      <div className="content-wrapper">
+
+        <div className="main-grid">
+          {/* Main News Feed - Left Side */}
+          <div className="news-feed">
+            <div className="news-header">
+              <h1>Latest News</h1>
+              <p>Stay updated with the latest headlines</p>
+            </div>
+
+            {loading ? (
+              <div className="skeleton-container">
+                <SkeletonLoader />
+                <SkeletonLoader />
+                <SkeletonLoader />
+              </div>
+            ) : (
+              <>
+                <div className="news-list">
+                  {articles.map((item, index) => (
+                    <NewsItem
+                      key={`${item.article_id}-${index}`}
+                      source={item.source_name}
+                      source_icon={item.source_icon}
+                      title={item.title}
+                      description={item.description}
+                      urlToImage={item.image_url}
+                      url={item.link}
+                      publishedAt={item.pubDate}
+                      summary={item.summary}
+                      category={item.category}
+                      summarizeArticle={summarizeArticle}
+                      setShowChat={setShowChat}
+                      setSelectedNews={setSelectedNews}
+                      news={item}
+                    />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                <div className="pagination">
+                  <button
+                    onClick={handlePrevPage}
+                    disabled={prevPages.length === 0}
+                    className={`pagination-btn ${prevPages.length === 0 ? "disabled" : ""}`}
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+
+                  <span className="page-indicator">Page {currentPage}</span>
+
+                  <button
+                    onClick={handleNextPage}
+                    disabled={!nextPage}
+                    className={`pagination-btn ${!nextPage ? "disabled" : ""}`}
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-        ) : (
-          <>
-            <div style={{
-              // display: 'grid',
-              // gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-              gap: '20px',
-              marginTop: '50px'
-            }}>
-              {articles.map((item, index) => (
-                <NewsItem
-                  key={`${item.article_id}-${index}`}
-                  source={item.source_name}
-                  source_icon={item.source_icon}
-                  title={item.title}
-                  description={item.description}
-                  urlToImage={item.image_url}
-                  url={item.link}
-                  publishedAt={item.pubDate}
-                  summary={item.summary}
-                  category={item.category}
-                  summarizeArticle={summarizeArticle}
-                  setShowChat={setShowChat}
-                  setSelectedNews={setSelectedNews}
-                  news={item}
-                />
-              ))}
+
+          {/* Trending News Sidebar - Right Side */}
+          <div className="trending-sidebar">
+            <div className="trending-container">
+              <div className="trending-header">
+                <div className="trending-title">
+                  <TrendingUp style={{ color: "#3b82f6" }} size={20} />
+                  <h2>Trending Now</h2>
+                </div>
+                <p>Most popular stories today</p>
+              </div>
+
+              <div className="trending-list">
+                {trendingLoading
+                  ? Array.from({ length: 5 }).map((_, index) => (
+                    <div key={index} className="trending-skeleton">
+                      <div className="trending-skeleton-content">
+                        <div className="trending-skeleton-image"></div>
+                        <div className="trending-skeleton-text">
+                          <div className="trending-skeleton-line"></div>
+                          <div className="trending-skeleton-line short"></div>
+                          <div className="trending-skeleton-line shorter"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                  : trendingNews.map((article, index) => (
+                    <TrendingCard key={article.article_id} article={article} rank={index + 1} />
+                  ))}
+              </div>
             </div>
-
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '20px',
-              marginTop: '40px'
-            }}>
-              <button
-                onClick={handlePrevPage}
-                disabled={prevPages.length === 0}
-                style={{
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '50%',
-                  background: prevPages.length > 0 ? '#3a7bd5' : '#e1e5e9',
-                  color: 'white',
-                  border: 'none',
-                  cursor: prevPages.length > 0 ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-                }}
-              >
-                <ChevronLeft size={24} />
-              </button>
-
-              <span style={{
-                fontSize: '16px',
-                fontWeight: '500',
-                color: '#333'
-              }}>
-                Page {currentPage}
-              </span>
-
-              <button
-                onClick={handleNextPage}
-                disabled={!nextPage}
-                style={{
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '50%',
-                  background: nextPage ? '#3a7bd5' : '#e1e5e9',
-                  color: 'white',
-                  border: 'none',
-                  cursor: nextPage ? 'pointer' : 'not-allowed',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-                }}
-              >
-                <ChevronRight size={24} />
-              </button>
-            </div>
-          </>
-        )}
+          </div>
+        </div>
       </div>
+
       <Chat showModal={showChat} setShowModal={setShowChat} selectedNews={selectedNews} />
       <ImportedArticle showModal={showModal} setShowModal={setShowModal} />
     </div>

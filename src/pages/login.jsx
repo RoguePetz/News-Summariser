@@ -1,5 +1,4 @@
-"use client";
-
+import './AuthPage.css'
 import { useState } from "react";
 import { Heart, Shield, Users, Activity, Newspaper, TrendingUp, Globe, Zap } from 'lucide-react';
 import { useNavigate } from "react-router-dom";

@@ -5,29 +5,16 @@ import Form from 'react-bootstrap/Form';
 import Select from 'react-select';
 import logo from '../assets/images/newspaper.png';
 import filter from '../assets/images/setting.png';
-
+import countryOptions from '../data/countryOptions';
+import categoryOptions from '../data/categoryOption';
 const Navbar = ({ setActiveFilters }) => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filters, setFilters] = useState({
-    category: '',       // Comma-separated categories
-    language: 'en',     // Comma-separated languages
-    country: '',        // Comma-separated countries
+    category: '',
+    language: 'en',
+    country: '',
     query: ''
   });
-
-  const categoryOptions = [
-    { value: 'business', label: 'Business' },
-    { value: 'entertainment', label: 'Entertainment' },
-    { value: 'environment', label: 'Environment' },
-    { value: 'food', label: 'Food' },
-    { value: 'health', label: 'Health' },
-    { value: 'politics', label: 'Politics' },
-    { value: 'science', label: 'Science' },
-    { value: 'sports', label: 'Sports' },
-    { value: 'technology', label: 'Technology' },
-    { value: 'top', label: 'Top Stories' },
-    { value: 'world', label: 'World' }
-  ];
 
   const languageOptions = [
     { value: 'en', label: 'English' },
@@ -35,14 +22,6 @@ const Navbar = ({ setActiveFilters }) => {
     { value: 'fr', label: 'French' },
     { value: 'de', label: 'German' },
     { value: 'it', label: 'Italian' }
-  ];
-
-  const countryOptions = [
-    { value: 'us', label: 'United States' },
-    { value: 'gb', label: 'United Kingdom' },
-    { value: 'ca', label: 'Canada' },
-    { value: 'au', label: 'Australia' },
-    { value: 'in', label: 'India' }
   ];
 
   const handleSelectChange = (selectedOptions, field) => {
@@ -58,7 +37,6 @@ const Navbar = ({ setActiveFilters }) => {
     return filters[field].split(',')
       .filter(Boolean)
       .map(value => {
-        // Find the matching option from the appropriate options array
         const options =
           field === 'category' ? categoryOptions :
             field === 'language' ? languageOptions :
@@ -66,7 +44,7 @@ const Navbar = ({ setActiveFilters }) => {
 
         return options.find(opt => opt.value === value);
       })
-      .filter(Boolean); // Remove any undefined values
+      .filter(Boolean);
   };
 
   const handleQueryChange = (e) => {
@@ -74,6 +52,11 @@ const Navbar = ({ setActiveFilters }) => {
       ...prev,
       query: e.target.value
     }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setActiveFilters(filters);
   };
 
   const applyFilters = () => {
@@ -106,13 +89,28 @@ const Navbar = ({ setActiveFilters }) => {
       justifyContent: 'space-between',
       alignItems: 'center'
     }}>
-      <div><img src={logo} width={40} alt="News logo" /></div>
-
+      <div><img src={logo} width={30} alt="News logo" /></div>
+      <div style={{ flex: 1, maxWidth: '500px', margin: '0 20px' }}>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={filters.query}
+            onChange={handleQueryChange}
+            placeholder="Search..."
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              border: '1px solid #ccc'
+            }}
+          />
+        </form>
+      </div>
       <div
         onClick={() => setShowFilterModal(true)}
         style={{ marginRight: '10px', cursor: 'pointer' }}
       >
-        <img src={filter} width={30} alt="News filter" />
+        <img src={filter} width={25} alt="News filter" />
       </div>
 
       <Modal show={showFilterModal} onHide={() => setShowFilterModal(false)}>
@@ -128,7 +126,6 @@ const Navbar = ({ setActiveFilters }) => {
                 options={categoryOptions}
                 value={getCurrentValues('category')}
                 onChange={(selected) => handleSelectChange(selected, 'category')}
-                className="basic-multi-select"
                 classNamePrefix="select"
                 placeholder="Select categories..."
               />
@@ -141,7 +138,6 @@ const Navbar = ({ setActiveFilters }) => {
                 options={languageOptions}
                 value={getCurrentValues('language')}
                 onChange={(selected) => handleSelectChange(selected, 'language')}
-                className="basic-multi-select"
                 classNamePrefix="select"
                 placeholder="Select languages..."
               />
@@ -154,7 +150,6 @@ const Navbar = ({ setActiveFilters }) => {
                 options={countryOptions}
                 value={getCurrentValues('country')}
                 onChange={(selected) => handleSelectChange(selected, 'country')}
-                className="basic-multi-select"
                 classNamePrefix="select"
                 placeholder="Select countries..."
               />
@@ -183,6 +178,6 @@ const Navbar = ({ setActiveFilters }) => {
       </Modal>
     </div>
   );
-}
+};
 
 export default Navbar;
