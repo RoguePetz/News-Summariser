@@ -135,7 +135,7 @@ function Main() {
     // if (!articles) {
     fetchTrendingNews(); // Trending section
     // }
-  }, [activeFilters, articles]);
+  }, [activeFilters]);
 
   return (
     <div className="main-container">
