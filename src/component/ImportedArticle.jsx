@@ -1,21 +1,20 @@
-import React from "react";
-import Modal from 'react-bootstrap/Modal';
-import { createWorker } from 'tesseract.js';
-import { useState, useRef, useEffect } from "react";
-import { Button, Card, ProgressBar } from 'react-bootstrap';
-import Spinner from 'react-bootstrap/Spinner';
-import { FiUpload, FiImage, FiX } from 'react-icons/fi';
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import Modal from "react-bootstrap/Modal";
+import { createWorker } from "tesseract.js";
+import { Button, Card, ProgressBar, Spinner } from "react-bootstrap";
+import { FiUpload, FiImage, FiX } from "react-icons/fi";
+
 const ImportedArticle = ({ showModal, setShowModal }) => {
-    const [imageText, setImageText] = useState('');
+    const [imageText, setImageText] = useState("");
     const [selectedImage, setSelectedImage] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
-    const fileInputRef = useRef(null);
     const [isExtracting, setIsExtracting] = useState(false);
+    const fileInputRef = useRef(null);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        if (file && file.type.match('image.*')) {
+        if (file && file.type.match("image.*")) {
             processImage(file);
         }
     };
@@ -33,7 +32,7 @@ const ImportedArticle = ({ showModal, setShowModal }) => {
         e.preventDefault();
         setIsDragging(false);
         const file = e.dataTransfer.files[0];
-        if (file && file.type.match('image.*')) {
+        if (file && file.type.match("image.*")) {
             processImage(file);
         }
     };
@@ -42,7 +41,7 @@ const ImportedArticle = ({ showModal, setShowModal }) => {
         // Simulate upload progress
         setUploadProgress(0);
         const interval = setInterval(() => {
-            setUploadProgress(prev => {
+            setUploadProgress((prev) => {
                 if (prev >= 100) {
                     clearInterval(interval);
                     return 100;
@@ -64,25 +63,36 @@ const ImportedArticle = ({ showModal, setShowModal }) => {
         setSelectedImage(null);
         setUploadProgress(0);
         if (fileInputRef.current) {
-            fileInputRef.current.value = '';
+            fileInputRef.current.value = "";
         }
     };
-    const extractText = async () => {
-        setIsExtracting(true)
+
+    // ✅ Wrap extractText in useCallback so it can safely be a dependency
+    const extractText = useCallback(async () => {
+        if (!selectedImage) return;
+        setIsExtracting(true);
         const worker = await createWorker();
-        const { data: { text } } = await worker.recognize(selectedImage);
+        const {
+            data: { text },
+        } = await worker.recognize(selectedImage);
         setImageText(text);
         await worker.terminate();
-        setIsExtracting(false)
-        // await expandText(text);
-    };
+        setIsExtracting(false);
+    }, [selectedImage]);
+
     useEffect(() => {
         if (selectedImage) {
-            extractText()
+            extractText();
         }
-    }, [selectedImage]);
+    }, [selectedImage, extractText]); // ✅ ESLint-compliant dependencies
+
     return (
-        <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+        <Modal
+            show={showModal}
+            onHide={() => setShowModal(false)}
+            size="lg"
+            centered
+        >
             <Modal.Header closeButton className="border-0 pb-0">
                 <Modal.Title className="h4">Import Article from Image</Modal.Title>
             </Modal.Header>
@@ -90,12 +100,13 @@ const ImportedArticle = ({ showModal, setShowModal }) => {
                 <div className="d-flex flex-column gap-4">
                     {/* Drag and Drop Area */}
                     <div
-                        className={`border-2 rounded-3 p-5 text-center ${isDragging ? 'border-primary bg-light' : 'border-dashed bg-light'}`}
+                        className={`border-2 rounded-3 p-5 text-center ${isDragging ? "border-primary bg-light" : "border-dashed bg-light"
+                            }`}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
                         onClick={() => fileInputRef.current.click()}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: "pointer" }}
                     >
                         <input
                             type="file"
@@ -110,7 +121,9 @@ const ImportedArticle = ({ showModal, setShowModal }) => {
                                 <FiUpload className="mb-3" size={24} />
                                 <h5 className="mb-2">Drag & drop an image here</h5>
                                 <p className="text-muted mb-0">or click to browse files</p>
-                                <small className="text-muted mt-2">Supports JPG, PNG (Max 5MB)</small>
+                                <small className="text-muted mt-2">
+                                    Supports JPG, PNG (Max 5MB)
+                                </small>
                             </div>
                         ) : (
                             <div className="position-relative">
@@ -119,8 +132,8 @@ const ImportedArticle = ({ showModal, setShowModal }) => {
                                     alt="Uploaded content"
                                     className="img-fluid rounded-2"
                                     style={{
-                                        maxHeight: '200px',
-                                        border: '1px solid #dee2e6'
+                                        maxHeight: "200px",
+                                        border: "1px solid #dee2e6",
                                     }}
                                 />
                                 <button
@@ -129,7 +142,7 @@ const ImportedArticle = ({ showModal, setShowModal }) => {
                                         e.stopPropagation();
                                         removeImage();
                                     }}
-                                    style={{ transform: 'translate(30%, -30%)' }}
+                                    style={{ transform: "translate(30%, -30%)" }}
                                 >
                                     <FiX size={18} />
                                 </button>
@@ -137,7 +150,7 @@ const ImportedArticle = ({ showModal, setShowModal }) => {
                         )}
 
                         {uploadProgress > 0 && uploadProgress < 100 && (
-                            <div className="mt-3" style={{ width: '80%', margin: '0 auto' }}>
+                            <div className="mt-3" style={{ width: "80%", margin: "0 auto" }}>
                                 <ProgressBar now={uploadProgress} label={`${uploadProgress}%`} />
                             </div>
                         )}
@@ -154,14 +167,16 @@ const ImportedArticle = ({ showModal, setShowModal }) => {
                                     </div>
                                 ) : imageText ? (
                                     <div className="text-muted">
-                                        {imageText.split('\n').map((paragraph, i) => (
+                                        {imageText.split("\n").map((paragraph, i) => (
                                             <p key={i}>{paragraph}</p>
                                         ))}
                                     </div>
                                 ) : (
                                     <div className="text-center py-4">
                                         <FiImage size={24} className="mb-2 text-muted" />
-                                        <p className="text-muted mb-0">Extracted text will appear here</p>
+                                        <p className="text-muted mb-0">
+                                            Extracted text will appear here
+                                        </p>
                                     </div>
                                 )}
                             </Card.Body>
