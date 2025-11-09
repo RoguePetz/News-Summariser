@@ -47,14 +47,14 @@ export default function NewsItem({
     })
   }
 
-  const cardStyle = {
-    backgroundColor: "white",
-    borderRadius: "12px",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-    border: "1px solid #f3f4f6",
-    overflow: "hidden",
-    transition: "all 0.3s ease",
-  }
+  // const cardStyle = {
+  //   backgroundColor: "white",
+  //   borderRadius: "12px",
+  //   boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+  //   border: "1px solid #f3f4f6",
+  //   overflow: "hidden",
+  //   transition: "all 0.3s ease",
+  // }
 
   const cardContentStyle = {
     padding: "16px",

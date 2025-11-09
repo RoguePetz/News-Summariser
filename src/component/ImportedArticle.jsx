@@ -2,7 +2,7 @@ import React from "react";
 import Modal from 'react-bootstrap/Modal';
 import { createWorker } from 'tesseract.js';
 import { useState, useRef, useEffect } from "react";
-import { Button, Card, ProgressBar, Alert } from 'react-bootstrap';
+import { Button, Card, ProgressBar } from 'react-bootstrap';
 import Spinner from 'react-bootstrap/Spinner';
 import { FiUpload, FiImage, FiX } from 'react-icons/fi';
 const ImportedArticle = ({ showModal, setShowModal }) => {
@@ -76,7 +76,6 @@ const ImportedArticle = ({ showModal, setShowModal }) => {
         setIsExtracting(false)
         // await expandText(text);
     };
-    console.log(selectedImage)
     useEffect(() => {
         if (selectedImage) {
             extractText()

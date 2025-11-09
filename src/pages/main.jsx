@@ -1,14 +1,14 @@
 import axios from 'axios';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Navbar from '../component/navbar.jsx';
 import NewsItem from '../component/nesitem';
 import SkeletonLoader from '../component/SkeletonLoader';
 import ImportedArticle from '../component/ImportedArticle';
 import Chat from '../component/chat';
-import { ChevronLeft, ChevronRight, TrendingUp, Clock, Eye } from "lucide-react"
+import { ChevronLeft, ChevronRight, TrendingUp } from "lucide-react"
 import TrendingCard from "../component/trending-card"
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+// import * as XLSX from "xlsx"; // Remove unused imports
+// import { saveAs } from "file-saver"; // Remove unused imports
 
 function Main() {
   const [showModal, setShowModal] = useState(false);
@@ -28,37 +28,16 @@ function Main() {
     country: '',
     query: '',
   });
+
+  // Remove unused exportToExcel function
+  /*
   const exportToExcel = () => {
-    if (!articles || articles.length === 0) {
-      alert("No articles available to export!");
-      return;
-    }
-
-    // Map only relevant fields to include in Excel
-    const dataToExport = articles.map((article, index) => ({
-      "S/N": index + 1,
-      Title: article.title,
-      "Source Name": article?.source_name || "N/A",
-      Creator: Array.isArray(article.creator)
-        ? article.creator.join(", ") || "N/A"
-        : article.creator || "N/A",
-      "Published Date": article.pubDate,
-      Link: article.link,
-      Description: article.description || "N/A",
-
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Articles");
-
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-
-    saveAs(blob, `news_export_${new Date().toISOString().split("T")[0]}.xlsx`);
+    // ... function implementation
   };
+  */
 
-  const fetchEveryNews = async (pageToken = null, isNewSearch = false) => {
+  // Wrap fetchEveryNews with useCallback to fix useEffect dependency
+  const fetchEveryNews = useCallback(async (pageToken = null, isNewSearch = false) => {
     setLoading(true);
     try {
       const params = {
@@ -96,8 +75,10 @@ function Main() {
       console.error('Error fetching news:', error);
     }
     setLoading(false);
-  };
-  const fetchTrendingNews = async () => {
+  }, [ApiKey, activeFilters, currentPage]); // Add dependencies
+
+  // Wrap fetchTrendingNews with useCallback to fix useEffect dependency
+  const fetchTrendingNews = useCallback(async () => {
     setTrendingLoading(true);
     try {
       const response = await axios.get('https://newsdata.io/api/1/latest', {
@@ -118,7 +99,8 @@ function Main() {
       console.error("Failed to fetch trending news:", error);
     }
     setTrendingLoading(false);
-  };
+  }, [ApiKey, activeFilters]); // Add dependencies
+
   const handleNextPage = () => {
     if (nextPage) {
       fetchEveryNews(nextPage);
@@ -177,15 +159,15 @@ function Main() {
     }
   };
 
-
+  // Fixed useEffect with proper dependencies
   useEffect(() => {
     fetchEveryNews(null, true); // Initial load with new search
-  }, [activeFilters]);
+  }, [fetchEveryNews]); // Now includes the dependency
+
+  // Fixed useEffect with proper dependencies
   useEffect(() => {
-    // if (!articles) {
     fetchTrendingNews(); // Trending section
-    // }
-  }, [activeFilters]);
+  }, [fetchTrendingNews]); // Now includes the dependency
 
   return (
     <div className="main-container">
@@ -195,26 +177,6 @@ function Main() {
       <button onClick={() => setShowModal(true)} className="add-button">
         +
       </button>
-      {/* <div className="news-header">
-        <h1>Latest News</h1>
-        <p>Stay updated with the latest headlines</p>
-        <button
-          onClick={exportToExcel}
-          className="export-btn"
-          style={{
-            backgroundColor: "#3b82f6",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            padding: "8px 14px",
-            cursor: "pointer",
-            marginTop: "10px"
-          }}
-        >
-          Export as Excel
-        </button>
-      </div> */}
-
 
       {/* Main Content */}
       <div className="content-wrapper">

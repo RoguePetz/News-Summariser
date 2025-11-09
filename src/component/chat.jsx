@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Modal, Button, Form, Card, Spinner, Badge, Collapse } from 'react-bootstrap';
-import { FiSend, FiChevronDown, FiChevronUp, FiMessageSquare } from 'react-icons/fi';
+import { Modal, Button, Form, Spinner, Badge, Collapse } from 'react-bootstrap';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { BsRobot, BsNewspaper } from 'react-icons/bs';
 import { IoSend } from 'react-icons/io5';
 

@@ -1,6 +1,6 @@
 import './AuthPage.css'
 import { useState } from "react";
-import { Heart, Shield, Users, Activity, Newspaper, TrendingUp, Globe, Zap } from 'lucide-react';
+import { Users, Newspaper, TrendingUp, Globe, Zap } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 const AuthPage = ({ onLogin, onSignup }) => {
     const navigate = useNavigate();
@@ -61,22 +61,22 @@ const AuthPage = ({ onLogin, onSignup }) => {
         </button>
     );
 
-    const InputField = ({ label, type = "text", placeholder, value, onChange, required = false, id }) => (
-        <div className="input-field">
-            <label htmlFor={id} className="input-label">
-                {label}
-            </label>
-            <input
-                id={id}
-                type={type}
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-                required={required}
-                className="input"
-            />
-        </div>
-    );
+    // const InputField = ({ label, type = "text", placeholder, value, onChange, required = false, id }) => (
+    //     <div className="input-field">
+    //         <label htmlFor={id} className="input-label">
+    //             {label}
+    //         </label>
+    //         <input
+    //             id={id}
+    //             type={type}
+    //             placeholder={placeholder}
+    //             value={value}
+    //             onChange={onChange}
+    //             required={required}
+    //             className="input"
+    //         />
+    //     </div>
+    // );
 
     const SelectField = ({ label, value, onChange, options, placeholder, id }) => (
         <div className="input-field">

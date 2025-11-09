@@ -20,11 +20,11 @@ export default function TrendingCard({ article, rank }) {
         return { color: "#6b7280", backgroundColor: "#f3f4f6" }
     }
 
-    const containerStyle = {
-        padding: "12px 16px",
-        cursor: "pointer",
-        transition: "background-color 0.3s ease",
-    }
+    // const containerStyle = {
+    //     padding: "12px 16px",
+    //     cursor: "pointer",
+    //     transition: "background-color 0.3s ease",
+    // }
 
     const contentStyle = {
         display: "flex",
