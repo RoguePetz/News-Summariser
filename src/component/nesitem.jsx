@@ -24,7 +24,7 @@ export default function NewsItem({
   const handleSummarize = async () => {
     setIsLoading(true)
     try {
-      const summaryText = await summarizeArticle(description)
+      const summaryText = await summarizeArticle(description, title);
       setCurrentSummary(summaryText)
     } catch (error) {
       console.error("Error summarizing:", error)

@@ -7,6 +7,8 @@ import ImportedArticle from '../component/ImportedArticle';
 import Chat from '../component/chat';
 import { ChevronLeft, ChevronRight, TrendingUp, Clock, Eye } from "lucide-react"
 import TrendingCard from "../component/trending-card"
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 function Main() {
   const [showModal, setShowModal] = useState(false);
@@ -26,6 +28,35 @@ function Main() {
     country: '',
     query: '',
   });
+  const exportToExcel = () => {
+    if (!articles || articles.length === 0) {
+      alert("No articles available to export!");
+      return;
+    }
+
+    // Map only relevant fields to include in Excel
+    const dataToExport = articles.map((article, index) => ({
+      "S/N": index + 1,
+      Title: article.title,
+      "Source Name": article?.source_name || "N/A",
+      Creator: Array.isArray(article.creator)
+        ? article.creator.join(", ") || "N/A"
+        : article.creator || "N/A",
+      "Published Date": article.pubDate,
+      Link: article.link,
+      Description: article.description || "N/A",
+
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Articles");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+    saveAs(blob, `news_export_${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
 
   const fetchEveryNews = async (pageToken = null, isNewSearch = false) => {
     setLoading(true);
@@ -105,15 +136,32 @@ function Main() {
     }
   };
 
-  const summarizeArticle = async (content) => {
-    if (!content) return 'No content available for summarization.';
+  const summarizeArticle = async (content, title = '') => {
+    // Combine title and description for better summarization
+    const fullContent = title ? `${title}. ${content}` : content;
 
-    const cleanedContent = content.replace(/<\/?[^>]+(>|$)/g, "").replace(/\s+/g, " ").trim();
+    if (!fullContent) return 'No content available for summarization.';
+
+    const cleanedContent = fullContent
+      .replace(/<\/?[^>]+(>|$)/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
 
     try {
       const response = await axios.post(
-        'https://api-inference.huggingface.co/models/google/pegasus-xsum',
-        { inputs: cleanedContent },
+        'https://router.huggingface.co/hf-inference/models/facebook/bart-large-xsum',
+        {
+          inputs: cleanedContent,
+          parameters: {
+            max_length: 80,
+            min_length: 30,
+            num_beams: 4,          // Use beam search for better quality
+            early_stopping: true,   // Stop early
+            repetition_penalty: 1.2, // Avoid repeating phrases
+            length_penalty: 0.8,    // Slightly encourage shorter summaries
+            do_sample: false        // Keep it deterministic
+          }
+        },
         {
           headers: {
             Authorization: `Bearer ${process.env.REACT_APP_HUGGING_FACE_API_KEY}`,
@@ -121,12 +169,14 @@ function Main() {
           },
         }
       );
+
       return response.data[0].summary_text;
     } catch (error) {
       console.error('Error summarizing article:', error);
       return 'Error occurred while summarizing the article.';
     }
   };
+
 
   useEffect(() => {
     fetchEveryNews(null, true); // Initial load with new search
@@ -145,6 +195,26 @@ function Main() {
       <button onClick={() => setShowModal(true)} className="add-button">
         +
       </button>
+      {/* <div className="news-header">
+        <h1>Latest News</h1>
+        <p>Stay updated with the latest headlines</p>
+        <button
+          onClick={exportToExcel}
+          className="export-btn"
+          style={{
+            backgroundColor: "#3b82f6",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            padding: "8px 14px",
+            cursor: "pointer",
+            marginTop: "10px"
+          }}
+        >
+          Export as Excel
+        </button>
+      </div> */}
+
 
       {/* Main Content */}
       <div className="content-wrapper">

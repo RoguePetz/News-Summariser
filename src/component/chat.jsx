@@ -37,7 +37,7 @@ const Chat = ({ showModal, setShowModal, selectedNews }) => {
 
         try {
             const response = await fetch(
-                'https://api-inference.huggingface.co/models/deepset/roberta-base-squad2',
+                'https://router.huggingface.co/hf-inference/models/deepset/roberta-base-squad2',
                 {
                     method: 'POST',
                     headers: {
